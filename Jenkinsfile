@@ -2,7 +2,7 @@ pipeline {
    agent any
    environment {
       REPOSITORY = 'docker.io/aesaganda' // Updated to use Docker Hub
-      PCC_CONSOLE_URL = "172.30.14.182:8083"
+      PCC_CONSOLE_URL = "twistlock1.garanti.lab:8083"
       CONTAINER_NAME = "ubuntu"
    }
    stages {
@@ -14,7 +14,7 @@ pipeline {
 
       stage('Build') {
          steps {
-            withCredentials([usernamePassword(credentialsId: '5ca7238d-0fde-40e9-b308-a3026dc81c6c', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {                
+            withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {                
                sh ''' 
                docker login -u $DOCKER_USER -p $DOCKER_PASS $REPOSITORY
                echo "Building the Docker image..."
@@ -53,8 +53,8 @@ pipeline {
             withCredentials([usernamePassword(credentialsId: 'ssh_creds', passwordVariable: 'SSH_PASS', usernameVariable: 'SSH_USER')]) {
                sh '''
                mkdir -p ~/.ssh/
-               ssh-keyscan -t rsa,dsa 10.160.154.170 >> ~/.ssh/known_hosts
-               sshpass -p $SSH_PASS ssh $SSH_USER@10.160.154.170 'bash -s' <<EOF         
+               ssh-keyscan -t rsa,dsa twistlock1.garanti.lab >> ~/.ssh/known_hosts
+               sshpass -p $SSH_PASS ssh $SSH_USER@twistlock1.garanti.lab 'bash -s' <<EOF         
                sudo chmod +x /home/sysadmin/apps/sandbox-scan.sh
                sudo PCC_CONSOLE_URL=$PCC_CONSOLE_URL token=$token CONTAINER_NAME=$CONTAINER_NAME TAG=$BUILD_NUMBER /home/sysadmin/apps/sandbox-scan.sh
                exit
