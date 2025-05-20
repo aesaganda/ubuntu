@@ -1,5 +1,9 @@
 pipeline {
-   agent any
+  agent {
+    kubernetes {
+      label 'docker-agent'
+    }
+  }
    environment {
       REPOSITORY = 'docker.io/aesaganda' // Updated to use Docker Hub
       PCC_CONSOLE_URL = "twistlock1.garanti.lab:8083"
